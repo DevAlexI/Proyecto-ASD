@@ -7,23 +7,7 @@ class Login(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.connect_to_server()
         self.create_widgets()
-    
-    def connect_to_server(self):
-        host = "localhost"
-        port = 5001
-        try:
-            client = s.socket()
-            print(f"[+] Conectandose a {host}:{port}")
-            client.connect((host, port))
-            mb.showinfo(title='Estado de conexión',
-             message='Conexión establecida al servidor')
-            #print("[+] Conexion establecida.")
-        except:
-            mb.showerror(title='Estado de conexión',
-            message='No hay conexión con el servidor')
-            sys.exit(0)
 
     def create_widgets(self):
         self.master.title("Cha Cha Chat me - Inicio de sesión")
@@ -56,14 +40,28 @@ class Login(tk.Frame):
     
     def create_user(self, event):
         #Crear usuario aquí 
+        print("Creando usuario")
         pass
 
+  #  mb.showinfo(title='Estado de conexión',
+#        message='Conexión establecida al servidor')
 
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    host = "localhost"
+    port = 5001
+    client = s.socket(s.AF_INET, s.SOCK_STREAM)
+    try:
+        client.connect((host, port)) 
+    except:
+        mb.showerror(title='Error de conexión', message='Hay un problema con la conexión')
 
+    print("[+] Conexion establecida.")
+    print(f"[+] Conectandose a {host}:{port}")
+
+
+    root = tk.Tk()
     # Gets both half the screen width/height and window width/height
     positionRight = int(root.winfo_screenwidth()/2 - root.winfo_reqwidth()/2)
     positionDown = int(root.winfo_screenheight()/2 - root.winfo_reqheight()/2)

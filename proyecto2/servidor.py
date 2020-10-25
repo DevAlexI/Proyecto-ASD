@@ -5,68 +5,74 @@ from os import listdir
 from os.path import isfile, join
 from encriptador import Encriptador
 import select 
-import sys 
+import sys, traceback
+import threading
 import _thread
 
-class SocketServidor:
+LISTA_SOCKETS = []
+POR_MANDAR = []
+ENVIADO_POR = {}
 
-    def __init__(self, host, puerto):
-        self.host = host
-        self.puerto = puerto
+class SocketServidor(threading.Thread):
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) 
-        s.bind((host,puerto))
-        print(f"[*] Escuchando como {self.host}:{self.puerto}")
-        s.listen(50) 
-        self.lista_usuarios = []
-        
-        while True: 
-            conn, ip = s.accept() 
-            self.lista_usuarios.append(conn) 
-            print(f"{ip[0]} se ha conectado")
-            # Se crea un nuevo hilo por cada usuario que se conecta
-            _thread.start_new_thread(self.usuarios,(conn,ip))     
-        conn.close() 
-        s.close() 
+    def __init__(self):
+        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.s.bind(('',5001))
+        self.s.listen(5)
 
-    def usuarios(self, conn, ip):
-        conn.send("--Bienvenido a la sala de chat--".encode('utf-8')) 
+        LISTA_SOCKETS.append(self.s)
+        print("--Escuchando en el puerto 5001--")
 
-        while True: 
-                try: 
-                    mensaje = conn.recv(2048) 
-                    if mensaje: 
-                        print(f"<{ip[0]}>  {mensaje}")
-                        # Manda el mensaje a broadcast
-                        mandar_mensaje = f"<{ip[0]}>  {mensaje}"
-                        self.broadcast(mandar_mensaje, conn)  
-                    else: 
-                        self.remove(conn) 
-                except: 
-                    continue
+    def iniciar(self):
+        while True:
+            leer, escribir, err = select.select(LISTA_SOCKETS,[],[],0)     
+            for sock in leer:
+                if sock == self.s:                    
+                    sockfd , addr = self.s.accept()
+                    print(str(addr))
+                    LISTA_SOCKETS.append(sockfd)
+                    print(LISTA_SOCKETS[len(LISTA_SOCKETS)-1])
+                else:
+                    try:
+                        ss = sock.recv(1024)
+                        if ss == '':
+                            print(str(sock.getpeername()))                            
+                            continue
+                        else:
+                            POR_MANDAR.append(ss)  
+                            ENVIADO_POR[ss] = (str(sock.getpeername()))
+                    except:
+                        print(str(sock.getpeername()))
 
-    def broadcast(self, mensaje, conexion): 
-        for usuarios in self.lista_usuarios: 
-            if usuarios != conexion: 
-                try: 
-                    usuarios.send(mensaje) 
-                except: 
-                    usuarios.close() 
-                    # Si se cierra la conexion, removemops al usuarios
-                    self.remove(usuarios) 
+class Conexiones(threading.Thread):
 
-    def remove(self, conexion): 
-        if conexion in self.lista_usuarios: 
-            self.lista_usuarios.remove(conexion) 
+    def correr(self):        
+        while True:
+            leer, escribir, err = select.select(LISTA_SOCKETS,[],[],0)  
+            for i in POR_MANDAR:
+                for s in escribir:
+                    try:
+                        if (str(s.getpeername()) == ENVIADO_POR[i]):
+                        	print((str(s.getpeername())))
+                        	continue
+                        print((str(s.getpeername())))
+                        s.send(i)                                                 
+                    except:
+                        traceback.print_exc(file=sys.stdout)
+                POR_MANDAR.remove(i)   
+                del(ENVIADO_POR[i])  
 
 
 if __name__ == "__main__":
 
     key = b'[EX\xc8\xd5\xbfI{\xa2$\x05(\xd5\x18\xbf\xc0\x85)\x10nc\x94\x02)j\xdf\xcb\xc4\x94\x9d(\x9e'
     enc = Encriptador(key)
-    s = SocketServidor('localhost', 5001)
-
-
+    s = SocketServidor()
+    s.iniciar()
+    print(f"Sockets: {LISTA_SOCKETS}")
+    h = Conexiones()
+    h.correr()
 
 

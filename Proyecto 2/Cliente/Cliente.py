@@ -3,13 +3,74 @@ from tkinter import messagebox as mb
 import socket as s
 import sys
 
-class Login(tk.Frame):
+class Cliente(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.create_widgets()
+        self.create_widgets_login()
+        self.chat()
+    
+    def chat(self):
+        chat = tk.Toplevel(self.master)
+        chat.title("Cha Cha Chat me - Chat")
+        chat.geometry("400x500")
+        icon = tk.PhotoImage(master=chat, file = 'images/chat.png')
+        chat.iconphoto(False, icon)
 
-    def create_widgets(self):
+        ChatLog = tk.Text(chat, bd=0, bg="white", height="8", width="50", font="Arial")
+        #ChatLog.insert(chat, "Connecting to your partner..\n")
+
+        scrollbar = tk.Scrollbar(chat, command=ChatLog.yview, cursor="heart")
+        ChatLog['yscrollcommand'] = scrollbar.set
+
+        SendButton = tk.Button(chat, font=30, text="Send", width="12", height=5,
+                    bd=0, bg="#FFBF00", activebackground="#FACC2E")
+
+        EntryBox = tk.Text(chat, bd=0, bg="white",width="29", height="5", font="Arial")
+        scrollbar.place(x=376,y=6, height=386)
+        ChatLog.place(x=6,y=6, height=386, width=370)
+        EntryBox.place(x=128, y=401, height=90, width=265)
+        SendButton.place(x=6, y=401, height=90)
+        #chat.mainloop()
+    
+    def validate(self, event):
+        print("Hi. The current entry content is:", self.user_name_entry.get())
+    
+    def send_data(self, *args):
+        pack_of_data = []
+        for data in args:
+            pack_of_data.append(data)
+        print(pack_of_data)
+#        client.send(pack_of_data.encode())
+
+    def send_file(self):
+        pass
+    
+    def create_user(self):
+        register = tk.Toplevel(self.master)
+        register.title("Cha Cha Chat me - Registro de usuario") 
+        icon = tk.PhotoImage(master=register, file = 'images/chat.png')
+        register.iconphoto(False, icon)
+
+    
+        tk.Label(register, text ="Registro de usuario :)").grid(row = 0, column = 0, sticky = "W", pady = 2)
+        tk.Label(register, text = 'Nombre: ', font=("Verdana", 13)).grid(row = 1, column = 0, sticky = "W", pady = 2)
+        tk.Label(register, text = 'Nickname: ', font=("Verdana", 13)).grid(row = 2, column = 0, sticky = "W", pady = 2)
+        tk.Label(register, text = 'Contraseña: ', font=("Verdana", 13)).grid(row = 3, column = 0, sticky = "W", pady = 2)
+
+        name = tk.Entry(register)
+        user = tk.Entry(register)
+        password = tk.Entry(register, show="*")
+
+        name.grid(row = 1, column = 1, pady = 2) 
+        user.grid(row = 2, column = 1, pady = 2) 
+        password.grid(row = 3, column = 1, pady = 2) 
+
+        regis = tk.Button(register, text='Registrarme')
+        regis.bind("<Button-1>", lambda e: self.send_data(name.get(), user.get(), password.get()))
+        regis.grid(row = 4, column = 1, pady = 3)
+
+    def create_widgets_login(self):
         self.master.title("Cha Cha Chat me - Inicio de sesión")
         icon = tk.PhotoImage(file = 'images/chat.png')
         self.master.iconphoto(False, icon)
@@ -29,24 +90,10 @@ class Login(tk.Frame):
         self.validating["command"] = self.validate
         self.validating.grid(columnspan=4)
 
-        self.validating = tk.Button(self, text = "Crear una nueva cuenta", fg="green")
-        self.validating["command"] = self.create_user
+        self.validating = tk.Button(self, text = "Crear una nueva cuenta", fg="green", command = self.create_user)
         self.validating.grid(columnspan=4)
 
         self.pack()
-        
-    def validate(self, event):
-        print("Hi. The current entry content is:", self.user_name_entry.get())
-    
-    def create_user(self, event):
-        #Crear usuario aquí 
-        print("Creando usuario")
-        pass
-
-  #  mb.showinfo(title='Estado de conexión',
-#        message='Conexión establecida al servidor')
-
-
 
 if __name__ == "__main__":
     host = "localhost"
@@ -60,14 +107,18 @@ if __name__ == "__main__":
     print("[+] Conexion establecida.")
     print(f"[+] Conectandose a {host}:{port}")
 
+    if True:
+        root = tk.Tk()
+        # Gets both half the screen width/height and window width/height
+        positionRight = int(root.winfo_screenwidth()/2 - root.winfo_reqwidth()/2)
+        positionDown = int(root.winfo_screenheight()/2 - root.winfo_reqheight()/2)
+    
+        # Positions the window in the center of the page.
+        root.geometry("+{}+{}".format(positionRight, positionDown))
 
-    root = tk.Tk()
-    # Gets both half the screen width/height and window width/height
-    positionRight = int(root.winfo_screenwidth()/2 - root.winfo_reqwidth()/2)
-    positionDown = int(root.winfo_screenheight()/2 - root.winfo_reqheight()/2)
- 
-    # Positions the window in the center of the page.
-    root.geometry("+{}+{}".format(positionRight, positionDown))
+        app = Cliente(master=root)
+        app.mainloop()
+    else:
+        print('Adios')
 
-    app = Login(master=root)
-    app.mainloop()
+    client.close()

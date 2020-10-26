@@ -23,8 +23,9 @@ class Server:
 
             while True:
                 rcvData = socketCliente.recv(1024).decode()
-              #  if(rcvData == "salir"):
-              #     break
+                if rcvData.count(' ') == 2:
+                    self.save_user(rcvData)
+
                 print("Servidor: ", rcvData)
                 socketCliente.send('Mensaje enviado.'.encode())
 
@@ -34,6 +35,9 @@ class Server:
         socketCliente.close()
         s.close()
 
+    def save_user(self):
+        pass
+    
     def validate_user(self):
         pass
 

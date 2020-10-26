@@ -27,13 +27,10 @@ class Server:
                 rcvData = socketCliente.recv(1024)
                 data_decompressed = pickle.loads(rcvData)
 
-                if data_decompressed.count() == 3:
-                    self.save_user(data_decompressed)
-                elif data_decompressed.count() == 2:
-                    self.validate_user(data_decompressed)
-
-                print("Servidor: ", rcvData)
-                socketCliente.send('Mensaje enviado.'.encode())
+                if len(data_decompressed) == 3:
+                    self.save_user(data_decompressed, socketCliente)
+                elif len(data_decompressed) == 2:
+                    self.validate_user(data_decompressed, socketCliente)
 
         else:
             print("Error de conexión. Cerrando aplicación...")
@@ -41,11 +38,24 @@ class Server:
         socketCliente.close()
         s.close()
 
-    def save_user(self, data):
-        pass
+    def save_user(self, data, cliente):
+        print('Recibí 3 madriolas')
+        with open(data[0], 'wb') as fp:
+            pickle.dump(data, fp)
+        cliente.send('registrado'.encode())
+        #sys.exit(0)
 
-    def validate_user(self, data):
-        pass
+    def validate_user(self, data, cliente):
+        print('Recibí 2 madriolas')
+        try: 
+            with open(data[0], 'rb') as fp:
+                data2 = pickle.load(fp)
+                if(data[0] == data2[0] and data[1] == data2[2]):
+                    cliente.send('concedido'.encode())
+        except:
+            cliente.send('denegado'.encode())
+            print('No existe archivo')
+        #sys.exit(0)
 
 if __name__ == "__main__":
     s = Server('localhost', 5001)

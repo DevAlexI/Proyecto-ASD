@@ -9,6 +9,7 @@ class Cliente(tk.Frame):
         super().__init__(master)
         self.master = master
         self.create_widgets_login()
+
         #self.chat()
     
     def chat(self):
@@ -19,13 +20,15 @@ class Cliente(tk.Frame):
         chat.iconphoto(False, icon)
 
         ChatLog = tk.Text(chat, bd=0, bg="white", height="8", width="50", font="Arial")
-        #ChatLog.insert(chat, "Connecting to your partner..\n")
+        ChatLog.insert(tk.END, "Connecting to your partner..\n")
+        ChatLog.config(state=tk.DISABLED)
 
         scrollbar = tk.Scrollbar(chat, command=ChatLog.yview, cursor="heart")
         ChatLog['yscrollcommand'] = scrollbar.set
 
         SendButton = tk.Button(chat, font=30, text="Send", width="12", height=5,
                     bd=0, bg="#FFBF00", activebackground="#FACC2E")
+       # SendFileButton = tk.Button()
 
         EntryBox = tk.Text(chat, bd=0, bg="white",width="29", height="5", font="Arial")
         scrollbar.place(x=376,y=6, height=386)
@@ -33,17 +36,22 @@ class Cliente(tk.Frame):
         EntryBox.place(x=128, y=401, height=90, width=265)
         SendButton.place(x=6, y=401, height=90)
         #chat.mainloop()
-    
-    def validate(self, event):
-        print("Hi. The current entry content is:", self.user_name_entry.get())
+
+    def analyze_response(self, response):
+        if(response == 'concedido'):
+            self.chat()
+        elif(response == 'denegado'):
+            print('No hay acceso')
     
     def send_data(self, *args):
         pack_of_data = []
         for data in args:
             pack_of_data.append(data)
         pack_of_data = pickle.dumps(pack_of_data)
-       # print(pack_of_data)
+        print(pack_of_data)
         client.send(pack_of_data)
+        res = client.recv(1024).decode()
+        self.analyze_response(res)
 
     def send_file(self):
         pass
@@ -69,7 +77,7 @@ class Cliente(tk.Frame):
         password.grid(row = 3, column = 1, pady = 2) 
 
         regis = tk.Button(register, text='Registrarme')
-        regis.bind("<Button-1>", lambda e: self.send_data(name.get(), user.get(), password.get()))
+        regis.bind("<Button-1>", lambda e: [self.send_data(name.get(), user.get(), password.get()), register.destroy()])
         regis.grid(row = 4, column = 1, pady = 3)
 
     def create_widgets_login(self):
@@ -89,7 +97,7 @@ class Cliente(tk.Frame):
         self.password_entry.grid(row=1, column=1)
 
         self.validating = tk.Button(self, text = "Ingresar", fg="red")
-        self.validating["command"] = self.validate
+        self.validating.bind("<Button-1>", lambda e: self.send_data(self.user_name_entry.get(), self.password_entry.get())) 
         self.validating.grid(columnspan=4)
 
         self.validating = tk.Button(self, text = "Crear una nueva cuenta", fg="green", command = self.create_user)

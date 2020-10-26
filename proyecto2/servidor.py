@@ -7,7 +7,6 @@ from encriptador import Encriptador
 import select 
 import sys, traceback
 import threading
-import _thread
 
 LISTA_SOCKETS = []
 POR_MANDAR = []
@@ -16,33 +15,33 @@ ENVIADO_POR = {}
 class SocketServidor(threading.Thread):
 
     def __init__(self):
-        self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-        self.s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        self.s.bind(('',5001))
-        self.s.listen(5)
+        self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+        self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        self.sock.bind(('',5001))
+        self.sock.listen(50)
 
-        LISTA_SOCKETS.append(self.s)
+        LISTA_SOCKETS.append(self.sock)
         print("--Escuchando en el puerto 5001--")
 
     def iniciar(self):
         while True:
             leer, escribir, err = select.select(LISTA_SOCKETS,[],[],0)     
             for sock in leer:
-                if sock == self.s:                    
-                    sockfd , addr = self.s.accept()
+                if sock == self.sock:                    
+                    sockfd , addr = self.sock.accept()
                     print(str(addr))
                     LISTA_SOCKETS.append(sockfd)
                     print(LISTA_SOCKETS[len(LISTA_SOCKETS)-1])
                 else:
                     try:
-                        ss = sock.recv(1024)
-                        if ss == '':
+                        s = sock.recv(1024)
+                        if s == '':
                             print(str(sock.getpeername()))                            
                             continue
                         else:
-                            POR_MANDAR.append(ss)  
-                            ENVIADO_POR[ss] = (str(sock.getpeername()))
+                            POR_MANDAR.append(s)
+                            ENVIADO_POR[s]=(str(sock.getpeername()))
                     except:
                         print(str(sock.getpeername()))
 
@@ -53,14 +52,8 @@ class Conexiones(threading.Thread):
             leer, escribir, err = select.select(LISTA_SOCKETS,[],[],0)  
             for i in POR_MANDAR:
                 for s in escribir:
-                    try:
-                        if (str(s.getpeername()) == ENVIADO_POR[i]):
-                        	print((str(s.getpeername())))
-                        	continue
-                        print((str(s.getpeername())))
-                        s.send(i)                                                 
-                    except:
-                        traceback.print_exc(file=sys.stdout)
+                    print("Enviando a %s"%(str(s.getpeername())))
+                    s.send(i)                                                 
                 POR_MANDAR.remove(i)   
                 del(ENVIADO_POR[i])  
 

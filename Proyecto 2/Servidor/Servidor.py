@@ -4,6 +4,8 @@ import os.path
 from os import listdir
 from os.path import isfile, join
 import time
+import pickle
+import sys
 
 class Server:
     def __init__(self, host, port):
@@ -22,9 +24,13 @@ class Server:
             print(f"[+] Conexion con {direccion}")
 
             while True:
-                rcvData = socketCliente.recv(1024).decode()
-                if rcvData.count(' ') == 2:
-                    self.save_user(rcvData)
+                rcvData = socketCliente.recv(1024)
+                data_decompressed = pickle.loads(rcvData)
+
+                if data_decompressed.count() == 3:
+                    self.save_user(data_decompressed)
+                elif data_decompressed.count() == 2:
+                    self.validate_user(data_decompressed)
 
                 print("Servidor: ", rcvData)
                 socketCliente.send('Mensaje enviado.'.encode())
@@ -35,10 +41,10 @@ class Server:
         socketCliente.close()
         s.close()
 
-    def save_user(self):
+    def save_user(self, data):
         pass
-    
-    def validate_user(self):
+
+    def validate_user(self, data):
         pass
 
 if __name__ == "__main__":

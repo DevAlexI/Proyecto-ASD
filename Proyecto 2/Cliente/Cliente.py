@@ -2,13 +2,14 @@ import tkinter as tk
 from tkinter import messagebox as mb
 import socket as s
 import sys
+import pickle
 
 class Cliente(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
         self.create_widgets_login()
-        self.chat()
+        #self.chat()
     
     def chat(self):
         chat = tk.Toplevel(self.master)
@@ -40,8 +41,9 @@ class Cliente(tk.Frame):
         pack_of_data = []
         for data in args:
             pack_of_data.append(data)
-        print(pack_of_data)
-#        client.send(pack_of_data.encode())
+        pack_of_data = pickle.dumps(pack_of_data)
+       # print(pack_of_data)
+        client.send(pack_of_data)
 
     def send_file(self):
         pass

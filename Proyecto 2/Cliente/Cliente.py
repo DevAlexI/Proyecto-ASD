@@ -9,6 +9,7 @@ class Cliente(tk.Frame):
         super().__init__(master)
         self.master = master
         self.create_widgets_login()
+        #client.close()
 
         #self.chat()
     
@@ -36,12 +37,11 @@ class Cliente(tk.Frame):
         EntryBox.place(x=128, y=401, height=90, width=265)
         SendButton.place(x=6, y=401, height=90)
         #chat.mainloop()
-
-    def analyze_response(self, response):
-        if(response == 'concedido'):
-            self.chat()
-        elif(response == 'denegado'):
-            print('No hay acceso')
+    
+    def actPeers(self, peerDatos):
+        #print("peer Datos: ", peerDatos)
+        p2p.peers = str(peerDatos, 'utf-8').split(",")[:-1]
+        #print("p2p peers", p2p.peers)
     
     def send_data(self, *args):
         pack_of_data = []
@@ -51,7 +51,7 @@ class Cliente(tk.Frame):
         print(pack_of_data)
         client.send(pack_of_data)
         res = client.recv(1024).decode()
-        self.analyze_response(res)
+        return res
 
     def send_file(self):
         pass
@@ -97,17 +97,27 @@ class Cliente(tk.Frame):
         self.password_entry.grid(row=1, column=1)
 
         self.validating = tk.Button(self, text = "Ingresar", fg="red")
-        self.validating.bind("<Button-1>", lambda e: self.send_data(self.user_name_entry.get(), self.password_entry.get())) 
+        #self.validating.bind("<Button-1>", lambda e: self.send_data(self.user_name_entry.get(), self.password_entry.get())) 
+        self.validating["command"] = self.send_data(self.user_name_entry.get(), self.password_entry.get())
         self.validating.grid(columnspan=4)
+
+        if(self.validating["command"] == 'concedido'):
+            self.chat()
+        elif(self.validating["command"] == 'denegado'):
+            print('No hay acceso')
 
         self.validating = tk.Button(self, text = "Crear una nueva cuenta", fg="green", command = self.create_user)
         self.validating.grid(columnspan=4)
 
         self.pack()
 
+class p2p:
+    peers = ['127.0.0.1']
+
+
 if __name__ == "__main__":
-    host = "localhost"
-    port = 5001
+    host = '127.0.0.1'
+    port = 10000
     client = s.socket(s.AF_INET, s.SOCK_STREAM)
     try:
         client.connect((host, port)) 
@@ -116,7 +126,6 @@ if __name__ == "__main__":
 
     print("[+] Conexion establecida.")
     print(f"[+] Conectandose a {host}:{port}")
-
     if True:
         root = tk.Tk()
         # Gets both half the screen width/height and window width/height
@@ -128,7 +137,3 @@ if __name__ == "__main__":
 
         app = Cliente(master=root)
         app.mainloop()
-    else:
-        print('Adios')
-
-    client.close()

@@ -1,0 +1,16 @@
+Instrucciones para poder hacer uso de este programa.
+
+1.- crear un entorno virtual con venv
+
+$ python -m venv env
+
+2.- Instalar las dependencias que vienen en requirements.txt
+
+$ pip install requirements.txt
+
+3.- Instalar o asegurarte de tener instalado ffmpeg y ffprobe, muchas aplicaciones de edición de video ya las han instalado en tu equipo. Puedes revisar si ya lo tienes con:
+
+$ ffmpeg -version
+$ ffprobe -version
+
+O instalarlo de https://ffmpeg.org/

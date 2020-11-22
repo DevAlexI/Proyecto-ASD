@@ -39,7 +39,7 @@ def atenderCliente(con, addr):
             archivo = os.path.basename(archivo)
             peso = int(peso)
             barra = tqdm.tqdm(range(peso),f"[->] Recibiendo {archivo}", unit = "B", unit_scale=True, unit_divisor=1024)
-            with open(archivo, "wb") as f:
+            with open(archivo, "wb") as f:##############################################PARTE QUE FALLA################################################################################
                 for _ in barra:
                     lectura = con.recv(BUFFER)
                     if not lectura:
@@ -47,7 +47,7 @@ def atenderCliente(con, addr):
                         barra.close()
                         break;
                     f.write(lectura)
-                    barra.update(len(lectura))
+                    barra.update(len(lectura))#######################################################################################################################################3
                     
                 print("recibido con éxito")
             print("Diviendo Archivo...")

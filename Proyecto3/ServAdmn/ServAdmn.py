@@ -78,21 +78,8 @@ def atenderCliente(con, addr):
         if(msg == "cliente-final"):
             print("hola")
                 
-                 
-                
-#            print("Enviando video fragmentado a servidor")
-#            identificador = servidores.index(addr[1])#Identificación para cada servidor
-#            archivo = "prueba/"+video[:-4]+str(identificador)+".mp4"
-#            print(archivo);
-        #conocerConexion(msg, con, addr)
         print(f"<Clientes> {clientes}")
         print(f"<Servidores> {servidores}")
-        
-        
-        #enviar frames(servidores)
-        #Pedir frames(servidores)
-        #unirVideo
-        #Regresar video a (clientes)
         if(msg == "-1"): 
             conectado = False
             break;

@@ -17,6 +17,9 @@ BUFFER = 4096
 cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 cliente.connect(DIR)
 #Método para mostrar quien es frente al servidor
+def conectar():
+    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cliente.connect(DIR)
 def presentarse(msg):
     mensaje = msg.encode()
     cliente.send(mensaje)
@@ -44,9 +47,8 @@ def mandarVideo():
             barra.refresh()
             barra.update(len(lectura))
     print(f"{archivo} enviado con éxito!!")
+    cliente.close()
     
-#Mandar video
-#Recibir video
     
 ######3Codigo ejecutable#########
 presentarse("cliente")
@@ -55,5 +57,6 @@ mandarMsg("Hola")
 input()
 mandarVideo()
 input()
-mandarMsg("cliente")
-input()
+conectar()
+mandarMsg("cliente-final")
+#Recibir el video final

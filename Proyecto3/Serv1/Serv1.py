@@ -93,14 +93,13 @@ def process_video(filename):
     strip_audio(filename)
     make_video(filename)
     add_audio(filename)
-#Recibir frames
-#Procesas Frames
-#Regresar Frames
 
 
 ######3Codigo ejecutable#########
 presentarse("servidor")
 input()
+mandarMsg("recibir")
+##############################Inicio Recepción video###########################333
 print("Recibiendo Video.")
 contenido = cliente.recv(BUFFER).decode('utf-8')
 archivo, peso = contenido.split("<>")
@@ -116,5 +115,11 @@ with open(archivo, "wb") as f:
         f.write(lectura)
         barra.update(len(lectura))
     print(f"{archivo} recibido con éxito")
+    ##############################Fin Recepción video###########################
+############################Invertir imágenes###########
+process_video(archivo)
+############################Fin Invertir imágenes###########
+input()
+#Enviar el video
 
 mandarMsg(DESCONECTAR)
